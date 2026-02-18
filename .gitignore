@@ -1,0 +1,91 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# Virtual Environments
+# =========================
+.env
+.venv
+venv/
+env/
+ENV/
+.python-version
+
+# =========================
+# Environment Variables
+# =========================
+.env.*
+!.env.example
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Testing
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# =========================
+# IDEs
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Vector Databases (Local)
+# =========================
+
+# Qdrant local storage
+qdrant_storage/
+
+# Chroma
+chroma/
+
+
+*.faiss
+*.index
+
+*.db
+*.sqlite3
+
+
+coverage.xml
+*.coverage
+
+# =========================
+# Temporary Files
+# =========================
+tmp/
+temp/
