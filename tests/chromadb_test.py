@@ -26,7 +26,7 @@ async def main():
         metadata=[{"name": "Zwe", "type": "resume"}],
     )
 
-    print("Inserted!")
+    print("Inserted test_collection!")
 
     results = await service.search_vectors(
         collection="test_collection",
