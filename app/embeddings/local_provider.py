@@ -1,10 +1,9 @@
-# app/embeddings/local_provider.py
 
 from typing import List
 from app.embeddings.base import EmbeddingProvider
 from sentence_transformers import SentenceTransformer
 import torch
-
+import asyncio
 
 class LocalEmbeddingProvider(EmbeddingProvider):
 

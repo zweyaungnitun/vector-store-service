@@ -1,6 +1,6 @@
 from app.embeddings.base import EmbeddingProvider
 from openai import AsyncOpenAI
-
+from typing import List
 class OpenAIEmbeddingProvider(EmbeddingProvider):
     def __init__(
         self,
