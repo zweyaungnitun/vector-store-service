@@ -80,6 +80,33 @@ class JobIngestor(BaseIngestor):
             )
             raise
 
+    async def ingest_bulk_jobs(self, jobs: List[Dict[str, Any]]) -> List[str]:
+        """
+        Ingest multiple jobs at once.
+        """
+        if not jobs:
+            raise ValidationError("Jobs list cannot be empty.")
+
+        ids = []
+        texts = []
+        metadata = []
+
+        for job in jobs:
+            self._validate(job)
+            job_id = f"job_{uuid4()}"
+            ids.append(job_id)
+            texts.append(self._build_text(job))
+            metadata.append({
+                "type": "job",
+                "title": job.get("title"),
+                "company": job.get("company"),
+                "location": job.get("location"),
+            })
+
+        await self.ingest(ids=ids, texts=texts, metadata=metadata)
+        self.logger.info("Bulk job ingestion completed", extra={"extra_data": {"count": len(ids)}})
+        return ids
+
     def _validate(self, job_data: Dict[str, Any]) -> None:
         """
         Validate required job fields.

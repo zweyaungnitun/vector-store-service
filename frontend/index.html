@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Ingestion Portal | Premium HR AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <div class="glass-card fade-in">
+            <header>
+                <h1>Vector Ingestor</h1>
+                <p class="subtitle">Semantic Knowledge Ingestion Engine</p>
+            </header>
+
+            <main>
+                <div class="upload-zone" id="drop-zone">
+                    <span class="upload-icon">🚀</span>
+                    <p class="upload-text">Drop your files here or click to browse</p>
+                    <p class="upload-hint">Supports PDF, Excel, CSV, TXT</p>
+                    <input type="file" id="file-input" multiple>
+                </div>
+
+                <div class="controls">
+                    <div class="select-wrapper">
+                        <select id="target-type">
+                            <option value="resume">Target: Resumes (Candidates)</option>
+                            <option value="job">Target: Job Postings</option>
+                            <option value="skill">Target: Skills Matrix</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="upload-btn" disabled>Ingest Data</button>
+                </div>
+
+                <div class="progress-bar" id="progress-container">
+                    <div class="progress-fill" id="progress-bar"></div>
+                </div>
+
+                <div class="status-container">
+                    <div id="file-list" class="file-list"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -80,6 +80,33 @@ class ResumeIngestor(BaseIngestor):
             )
             raise
 
+    async def ingest_bulk_resumes(self, resumes: List[Dict[str, Any]]) -> List[str]:
+        """
+        Ingest multiple resumes at once.
+        """
+        if not resumes:
+            raise ValidationError("Resumes list cannot be empty.")
+
+        ids = []
+        texts = []
+        metadata = []
+
+        for resume in resumes:
+            self._validate(resume)
+            resume_id = f"resume_{uuid4()}"
+            ids.append(resume_id)
+            texts.append(self._build_text(resume))
+            metadata.append({
+                "type": "resume",
+                "name": resume.get("name"),
+                "email": resume.get("email"),
+                "years_experience": resume.get("years_experience"),
+            })
+
+        await self.ingest(ids=ids, texts=texts, metadata=metadata)
+        self.logger.info("Bulk resume ingestion completed", extra={"extra_data": {"count": len(ids)}})
+        return ids
+
     def _validate(self, resume_data: Dict[str, Any]) -> None:
         """
         Validate required resume fields.

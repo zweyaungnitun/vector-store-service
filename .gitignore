@@ -24,6 +24,9 @@ venv/
 env/
 ENV/
 .python-version
+bin/
+.conda/
+*.bin
 
 # =========================
 # Environment Variables
