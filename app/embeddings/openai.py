@@ -6,14 +6,19 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         self,
         api_key: str,
         model: str = "text-embedding-3-small",
+        dimensions: int = 1024,
     ):
-        self.client = AsyncOpenAI(api_key=api_key),
+        self.client = AsyncOpenAI(api_key=api_key)
         self.model = model
+        self.dimensions = dimensions
 
-    async def embed(self,text :List[str])->List[List[float]]:
+    async def embed(self, texts: List[str]) -> List[List[float]]:
+        # text-embedding-3 supports a 'dimensions' parameter for truncation
+        # to match specific architectures like 1024 or 512.
         response = await self.client.embeddings.create(
-            model = self.model,
+            model=self.model,
             input=texts,
+            dimensions=self.dimensions if "text-embedding-3" in self.model else None
         )
 
         return [item.embedding for item in response.data]
@@ -23,6 +28,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             await self.client.embeddings.create(
                 model=self.model,
                 input=["health check"],
+                dimensions=self.dimensions if "text-embedding-3" in self.model else None
             )
             return True
         except Exception:

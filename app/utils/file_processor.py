@@ -27,8 +27,9 @@ class FileProcessor:
     def extract_data_from_csv(content: bytes) -> List[Dict[str, Any]]:
         try:
             df = pd.read_csv(BytesIO(content))
-            # Replace NaN with None for JSON compatibility
-            return df.where(pd.notnull(df), None).to_dict(orient="records")
+            # Thorough NaN handling for JSON/Chroma serialization
+            df = df.replace({pd.NA: None}).where(pd.notnull(df), None)
+            return df.to_dict(orient="records")
         except Exception as e:
             logging.error(f"Error processing CSV: {str(e)}")
             raise ValueError(f"Failed to extract data from CSV: {str(e)}")
@@ -37,8 +38,9 @@ class FileProcessor:
     def extract_data_from_excel(content: bytes) -> List[Dict[str, Any]]:
         try:
             df = pd.read_excel(BytesIO(content))
-            # Replace NaN with None for JSON compatibility
-            return df.where(pd.notnull(df), None).to_dict(orient="records")
+            # Thorough NaN handling for JSON/Chroma serialization
+            df = df.replace({pd.NA: None}).where(pd.notnull(df), None)
+            return df.to_dict(orient="records")
         except Exception as e:
             logging.error(f"Error processing Excel: {str(e)}")
             raise ValueError(f"Failed to extract data from Excel: {str(e)}")

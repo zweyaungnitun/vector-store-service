@@ -15,48 +15,66 @@ A FastAPI-based service for ingesting and searching HR-related data (Skills, Res
 - Python 3.10 or 3.11
 - Conda (recommended) or virtualenv
 
-## Installation
+## Quick Start
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd vector-store-service
-   ```
+Follow these steps to get the project up and running in minutes.
 
-2. **Create and activate a virtual environment**:
-   ```bash
-   conda create -n vector-store python=3.11
-   conda activate vector-store
-   ```
+### 1. Installation
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+# Clone the repository
+git clone <repository-url>
+cd vector-store-service
 
-4. **Environment Setup**:
-   Copy the example environment file and update it with your settings:
-   ```bash
-   cp .env.example .env
-   ```
+# Create and activate a virtual environment
+conda create -n vector-store python=3.11 -y
+conda activate vector-store
 
-## Running the Project
+# Install dependencies
+pip install -r requirements.txt
+```
 
-To start the FastAPI server:
+### 2. Environment Configuration
+
+The service requires a `.env` file for configuration. We provide a template to get you started:
+
+```bash
+cp .env.example .env
+```
+
+**Note:** By default, the project uses **ChromaDB** in persistent mode (saves to `./chroma_db`). No additional API keys are required for the default local setup.
+
+### 3. Start the Backend Service
+
+Launch the FastAPI server using Uvicorn:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The service will be available at `http://localhost:8000`.
+- **API URL**: `http://localhost:8000`
+- **Health Check**: `http://localhost:8000/health`
+- **Documentation**: `http://localhost:8000/docs`
 
-## Using the Ingestion UI
+### 4. Launch the Ingestion UI
 
-A premium drag-and-drop UI is available in the `frontend/` directory.
+The project features a premium drag-and-drop interface for managing your data.
 
-1. **Start the Backend**: Ensure the FastAPI server is running (`uvicorn app.main:app --reload`).
-2. **Open the UI**: Simply open `frontend/index.html` in any modern web browser.
-3. **Upload**: Select your target type (Resume, Job, or Skill), drop your files, and click "Ingest Data".
+1.  Navigate to the `frontend/` directory.
+2.  Open `index.html` in your browser.
+    - *Pro Tip*: For the best experience, serve it using a simple server:
+      ```bash
+      cd frontend
+      python3 -m http.server 8080
+      ```
+    - Then visit `http://localhost:8080`.
+
+### 5. Verify the Connection
+
+- Ensure the "Target" dropdown is visible.
+- The status bar should show "Ready" when files are selected.
+- Successful ingestion will be reflected in the UI and the backend logs.
+
 
 ## API Documentation
 

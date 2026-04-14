@@ -5,8 +5,27 @@ const targetType = document.getElementById('target-type');
 const fileList = document.getElementById('file-list');
 const progressBar = document.getElementById('progress-bar');
 const progressContainer = document.getElementById('progress-container');
+const textIngestBtn = document.getElementById('text-ingest-btn');
+const rawText = document.getElementById('raw-text');
+const textTargetType = document.getElementById('text-target-type');
 
 let selectedFiles = [];
+
+// Tab Switching
+window.switchTab = (tabId) => {
+    document.querySelectorAll('.ingest-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+    
+    // Clear list when switching tabs
+    fileList.innerHTML = '';
+};
 
 // Drag and drop handlers
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -49,7 +68,7 @@ function updateFileList() {
             <div class="file-info">
                 <span>📄</span>
                 <div>
-                    <div>${file.name}</div>
+                    <div style="font-weight: 600">${file.name}</div>
                     <small style="color: var(--text-dim)">${(file.size / 1024).toFixed(1)} KB</small>
                 </div>
             </div>
@@ -58,6 +77,7 @@ function updateFileList() {
     `).join('');
 }
 
+// File Upload Handler
 uploadBtn.addEventListener('click', async () => {
     const target = targetType.value;
     uploadBtn.disabled = true;
@@ -75,7 +95,6 @@ uploadBtn.addEventListener('click', async () => {
         statusLabel.style.color = 'var(--primary)';
 
         try {
-            // Updated to point to the correct Backend API port
             const response = await fetch(`http://localhost:8000/api/v1/ingest/file?target=${target}`, {
                 method: 'POST',
                 body: formData
@@ -83,15 +102,16 @@ uploadBtn.addEventListener('click', async () => {
 
             if (response.ok) {
                 const result = await response.json();
-                statusLabel.textContent = `Success (${result.count} records)`;
+                statusLabel.textContent = `Success (${result.count} recs)`;
                 statusLabel.style.color = 'var(--success)';
             } else {
                 const error = await response.json();
-                statusLabel.textContent = `Error: ${error.detail || 'Upload failed'}`;
+                statusLabel.textContent = `Error`;
+                statusLabel.title = error.detail || 'Upload failed';
                 statusLabel.style.color = 'var(--error)';
             }
         } catch (err) {
-            statusLabel.textContent = 'Connection Error';
+            statusLabel.textContent = 'Failed';
             statusLabel.style.color = 'var(--error)';
         }
 
@@ -104,4 +124,60 @@ uploadBtn.addEventListener('click', async () => {
         progressContainer.style.display = 'none';
         progressBar.style.width = '0%';
     }, 3000);
+});
+
+// Raw Text Ingestion Handler
+textIngestBtn.addEventListener('click', async () => {
+    const text = rawText.value.trim();
+    if (!text) return;
+
+    const target = textTargetType.value;
+    textIngestBtn.disabled = true;
+    
+    // Create a temporary "file-like" entry in the list for feedback
+    const index = 0;
+    fileList.innerHTML = `
+        <div class="file-item fade-in">
+            <div class="file-info">
+                <span>📝</span>
+                <div>
+                    <div style="font-weight: 600">Raw Text Snippet</div>
+                    <small style="color: var(--text-dim)">${text.length} characters</small>
+                </div>
+            </div>
+            <div class="status-badge" id="text-status">Ingesting...</div>
+        </div>
+    `;
+
+    const statusLabel = document.getElementById('text-status');
+    statusLabel.style.color = 'var(--primary)';
+
+    try {
+        // We reuse the /file endpoint by creating a Blob, or we could add a new endpoint.
+        // For simplicity and reusing backend logic, we send a pseudo-file.
+        const blob = new Blob([text], { type: 'text/plain' });
+        const formData = new FormData();
+        formData.append('file', blob, 'raw_text_ingestion.txt');
+
+        const response = await fetch(`http://localhost:8000/api/v1/ingest/file?target=${target}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            statusLabel.textContent = `Success`;
+            statusLabel.style.color = 'var(--success)';
+            rawText.value = '';
+        } else {
+            const error = await response.json();
+            statusLabel.textContent = `Error`;
+            statusLabel.style.color = 'var(--error)';
+        }
+    } catch (err) {
+        statusLabel.textContent = 'Error';
+        statusLabel.style.color = 'var(--error)';
+    }
+
+    textIngestBtn.disabled = false;
 });

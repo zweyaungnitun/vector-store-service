@@ -14,13 +14,19 @@
     <div class="blob blob-2"></div>
 
     <div class="container">
-        <div class="glass-card fade-in">
-            <header>
-                <h1>Vector Ingestor</h1>
-                <p class="subtitle">Semantic Knowledge Ingestion Engine</p>
-            </header>
+        <header class="fade-in">
+            <h1>Vector Ingestor</h1>
+            <p class="subtitle">Next-Generation Semantic Knowledge Engine</p>
+        </header>
 
-            <main>
+        <div class="glass-card fade-in">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('file-tab')">📂 File Upload</button>
+                <button class="tab-btn" onclick="switchTab('text-tab')">📝 Raw Text</button>
+            </div>
+
+            <!-- File Upload Section -->
+            <div id="file-tab" class="ingest-section active">
                 <div class="upload-zone" id="drop-zone">
                     <span class="upload-icon">🚀</span>
                     <p class="upload-text">Drop your files here or click to browse</p>
@@ -31,22 +37,39 @@
                 <div class="controls">
                     <div class="select-wrapper">
                         <select id="target-type">
-                            <option value="resume">Target: Resumes (Candidates)</option>
-                            <option value="job">Target: Job Postings</option>
-                            <option value="skill">Target: Skills Matrix</option>
+                            <option value="knowledge">Target: General Knowledge (PDF/TXT)</option>
+                            <option value="excel">Target: Generic Excel/CSV Data</option>
+                            <option value="resume">Target: HR Resumes (Candidates)</option>
+                            <option value="job">Target: HR Job Postings</option>
+                            <option value="skill">Target: HR Skills Matrix</option>
                         </select>
                     </div>
-                    <button class="btn-primary" id="upload-btn" disabled>Ingest Data</button>
+                    <button class="btn-primary" id="upload-btn" disabled>Ingest Files</button>
                 </div>
+            </div>
 
-                <div class="progress-bar" id="progress-container">
-                    <div class="progress-fill" id="progress-bar"></div>
+            <!-- Raw Text Section -->
+            <div id="text-tab" class="ingest-section">
+                <textarea id="raw-text" placeholder="Paste your raw text knowledge here..."></textarea>
+                <div class="controls">
+                    <div class="select-wrapper">
+                        <select id="text-target-type">
+                            <option value="knowledge">Collection: General Knowledge</option>
+                            <option value="skill">Collection: Skills Matrix</option>
+                            <option value="job">Collection: Job Postings</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="text-ingest-btn">Ingest Text</button>
                 </div>
+            </div>
 
-                <div class="status-container">
-                    <div id="file-list" class="file-list"></div>
-                </div>
-            </main>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-fill" id="progress-bar"></div>
+            </div>
+
+            <div class="status-container">
+                <div id="file-list" class="file-list"></div>
+            </div>
         </div>
     </div>
 

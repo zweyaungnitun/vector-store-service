@@ -14,7 +14,8 @@ class LocalEmbeddingProvider(EmbeddingProvider):
 
     async def embed(self, texts: List[str]) -> List[List[float]]:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.model.encode, texts, True)
+        # Explicitly pass convert_to_numpy=True and avoid positional arguments that might be misinterpreted
+        return await loop.run_in_executor(None, lambda: self.model.encode(texts, convert_to_numpy=True).tolist())
 
     async def health_check(self) -> bool:
         try:

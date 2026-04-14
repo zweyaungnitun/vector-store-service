@@ -75,43 +75,46 @@ class SkillIngestor(BaseIngestor):
             )
             raise
 
-    async def ingest_bulk_skills(self, skills: List[Dict[str, Any]]) -> List[str]:
+    async def ingest_bulk_skills(self, skills: List[Dict[str, Any]], batch_size: int = 50) -> List[str]:
         """
-        Ingest multiple skills at once (more efficient).
+        Ingest multiple skills using streaming batches to manage memory.
         """
-
         if not skills:
             raise ValidationError("Skills list cannot be empty.")
 
-        ids = []
-        texts = []
-        metadata = []
+        all_ids = []
+        total = len(skills)
+        self.logger.info(f"Streaming Skill ingestion started for {total} records.")
 
-        for skill in skills:
-            self._validate(skill)
+        for i in range(0, total, batch_size):
+            chunk = skills[i:i + batch_size]
+            
+            ids = []
+            texts = []
+            metadata = []
 
-            skill_id = f"skill_{uuid4()}"
-            ids.append(skill_id)
+            for skill in chunk:
+                try:
+                    self._validate(skill)
+                    skill_id = f"skill_{uuid4()}"
+                    ids.append(skill_id)
+                    texts.append(self._build_text(skill))
+                    metadata.append({
+                        "type": "skill",
+                        "name": skill.get("name"),
+                        "category": skill.get("category"),
+                        "level": skill.get("level"),
+                    })
+                except ValidationError as e:
+                    self.logger.warning(f"Skipping invalid skill: {str(e)}")
+                    continue
 
-            texts.append(self._build_text(skill))
+            if ids:
+                await self.ingest(ids=ids, texts=texts, metadata=metadata)
+                all_ids.extend(ids)
+                self.logger.info(f"Ingested {len(all_ids)}/{total} skills...")
 
-            metadata.append(
-                {
-                    "type": "skill",
-                    "name": skill.get("name"),
-                    "category": skill.get("category"),
-                    "level": skill.get("level"),
-                }
-            )
-
-        await self.ingest(ids=ids, texts=texts, metadata=metadata)
-
-        self.logger.info(
-            "Bulk skill ingestion completed",
-            extra={"extra_data": {"count": len(ids)}},
-        )
-
-        return ids
+        return all_ids
 
     def _validate(self, skill_data: Dict[str, Any]) -> None:
         """

@@ -17,7 +17,7 @@ class BaseIngestor:
     ):
         self.logger.info(
             "Ingestion started",
-            extra={"extra_data": {"collection": self.collection, "ids": ids}},
+            extra={"extra_data": {"collection": self.collection, "count": len(ids)}},
         )
 
         if not ids or not texts:

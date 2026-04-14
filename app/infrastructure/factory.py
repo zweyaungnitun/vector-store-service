@@ -3,6 +3,7 @@ from app.core.config import settings
 
 from app.infrastructure.vector_stores.qdrant.store import QdrantStore
 from app.infrastructure.vector_stores.chroma.store import ChromaStore
+from app.infrastructure.vector_stores.pinecone.store import PineconeStore
 
 
 def get_vector_store() -> VectorStore:
@@ -19,6 +20,13 @@ def get_vector_store() -> VectorStore:
         return ChromaStore(
             collection_name=settings.CHROMA_COLLECTION,
             persist_directory=settings.CHROMA_PERSIST_DIR,
+        )
+
+    elif provider == "pinecone":
+        return PineconeStore(
+            api_key=settings.PINECONE_API_KEY,
+            environment=settings.PINECONE_ENVIRONMENT,
+            index_name=settings.PINECONE_INDEX_NAME,
         )
 
     else:

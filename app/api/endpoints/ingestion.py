@@ -8,10 +8,13 @@ from app.api.schemas import (
     IngestionResponse, 
     BulkIngestionResponse
 )
-from app.api.deps import get_skill_ingestor, get_resume_ingestor, get_job_ingestor
+from app.api.deps import get_skill_ingestor, get_resume_ingestor, get_job_ingestor, get_excel_ingestor, get_knowledge_ingestor
 from app.ingestion.skill_ingestor import SkillIngestor
 from app.ingestion.resume_ingestor import ResumeIngestor
 from app.ingestion.job_ingestor import JobIngestor
+from app.ingestion.excel_ingestor import ExcelIngestor
+from app.ingestion.knowledge_ingestor import KnowledgeIngestor
+
 from app.core.exceptions import ValidationError
 from fastapi import File, UploadFile, Query
 from app.utils.file_processor import FileProcessor
@@ -87,10 +90,12 @@ async def ingest_bulk_jobs(
 @router.post("/file", response_model=BulkIngestionResponse)
 async def ingest_file(
     file: UploadFile = File(...),
-    target: str = Query(..., enum=["skill", "resume", "job"]),
+    target: str = Query(..., enum=["skill", "resume", "job", "excel", "knowledge"]),
     skill_ingestor: SkillIngestor = Depends(get_skill_ingestor),
     resume_ingestor: ResumeIngestor = Depends(get_resume_ingestor),
-    job_ingestor: JobIngestor = Depends(get_job_ingestor)
+    job_ingestor: JobIngestor = Depends(get_job_ingestor),
+    excel_ingestor: ExcelIngestor = Depends(get_excel_ingestor),
+    knowledge_ingestor: KnowledgeIngestor = Depends(get_knowledge_ingestor)
 ):
     content = await file.read()
     try:
@@ -105,6 +110,11 @@ async def ingest_file(
                 ids = await resume_ingestor.ingest_bulk_resumes(processed_data)
             elif target == "job":
                 ids = await job_ingestor.ingest_bulk_jobs(processed_data)
+            elif target == "excel":
+                ids = await excel_ingestor.ingest_bulk_excel(processed_data)
+            elif target == "knowledge":
+                ids = await knowledge_ingestor.ingest_bulk_knowledge(processed_data)
+
         else:
             # Single text from PDF/TXT
             if target == "skill":
@@ -122,6 +132,11 @@ async def ingest_file(
                     "description": processed_data,
                     "company": "Uploaded File"
                 }))
+            elif target == "knowledge":
+                ids.append(await knowledge_ingestor.ingest_knowledge(
+                    text=processed_data,
+                    metadata={"filename": file.filename, "source": "upload"}
+                ))
         
         return BulkIngestionResponse(ids=ids, count=len(ids))
         

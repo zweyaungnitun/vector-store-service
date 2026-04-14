@@ -13,6 +13,9 @@ class JsonFormatter(logging.Formatter):
             "time": self.formatTime(record, self.datefmt),
         }
 
+        if record.exc_info:
+            log_record["exception"] = self.formatException(record.exc_info)
+
         if hasattr(record, "extra_data"):
             log_record.update(record.extra_data)
 

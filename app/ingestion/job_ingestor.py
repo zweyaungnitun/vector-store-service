@@ -80,32 +80,46 @@ class JobIngestor(BaseIngestor):
             )
             raise
 
-    async def ingest_bulk_jobs(self, jobs: List[Dict[str, Any]]) -> List[str]:
+    async def ingest_bulk_jobs(self, jobs: List[Dict[str, Any]], batch_size: int = 50) -> List[str]:
         """
-        Ingest multiple jobs at once.
+        Ingest multiple jobs using streaming batches to manage memory.
         """
         if not jobs:
             raise ValidationError("Jobs list cannot be empty.")
 
-        ids = []
-        texts = []
-        metadata = []
+        all_ids = []
+        total = len(jobs)
+        self.logger.info(f"Streaming Job ingestion started for {total} records.")
 
-        for job in jobs:
-            self._validate(job)
-            job_id = f"job_{uuid4()}"
-            ids.append(job_id)
-            texts.append(self._build_text(job))
-            metadata.append({
-                "type": "job",
-                "title": job.get("title"),
-                "company": job.get("company"),
-                "location": job.get("location"),
-            })
+        for i in range(0, total, batch_size):
+            chunk = jobs[i:i + batch_size]
+            
+            ids = []
+            texts = []
+            metadata = []
 
-        await self.ingest(ids=ids, texts=texts, metadata=metadata)
-        self.logger.info("Bulk job ingestion completed", extra={"extra_data": {"count": len(ids)}})
-        return ids
+            for job in chunk:
+                try:
+                    self._validate(job)
+                    job_id = f"job_{uuid4()}"
+                    ids.append(job_id)
+                    texts.append(self._build_text(job))
+                    metadata.append({
+                        "type": "job",
+                        "title": job.get("title"),
+                        "company": job.get("company"),
+                        "location": job.get("location"),
+                    })
+                except ValidationError as e:
+                    self.logger.warning(f"Skipping invalid job: {str(e)}")
+                    continue
+
+            if ids:
+                await self.ingest(ids=ids, texts=texts, metadata=metadata)
+                all_ids.extend(ids)
+                self.logger.info(f"Ingested {len(all_ids)}/{total} jobs...")
+
+        return all_ids
 
     def _validate(self, job_data: Dict[str, Any]) -> None:
         """

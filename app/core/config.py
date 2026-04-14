@@ -10,6 +10,19 @@ class Settings(BaseSettings):
     CHROMA_PERSIST_DIR: str = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
     CHROMA_COLLECTION: str = os.getenv("CHROMA_COLLECTION", "vectors")
     
+    # Pinecone
+    PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY", "")
+    PINECONE_ENVIRONMENT: str = os.getenv("PINECONE_ENVIRONMENT", "us-east-1")
+    PINECONE_INDEX_NAME: str = os.getenv("PINECONE_INDEX_NAME", "vectors")
+
+    # Embeddings
+    EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "local")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+    EMBEDDING_DIMENSION: int = int(os.getenv("EMBEDDING_DIMENSION", "384"))
+    
+    # OpenAI
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    
     model_config = {
         "env_file": ".env"
     }

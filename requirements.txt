@@ -16,3 +16,4 @@ python-multipart
 pypdf
 pandas
 openpyxl
+pinecone-client
